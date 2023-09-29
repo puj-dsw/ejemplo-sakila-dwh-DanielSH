@@ -1,6 +1,5 @@
+ 
 use sakila;
-
-
 
 
 with datos_rental as (
@@ -21,32 +20,6 @@ from rental
     join city on address.city_id = city.city_id
 ),
 
-
-datos_tienda_empleado as (
-    select 
-        store,
-        staff,
-        sum(case when anno = 2005 and mes = 5 then 1 else 0 end) as mayo2005, -- mayo
-        sum(case when anno = 2005 and mes = 6 then 1 else 0 end) as junio2005 -- junio
-    from datos_rental
-    group by store, staff
-
-),
-
-
-
-datos_tienda_empleado_analisis as (
-    select 
-        store,
-        staff,
-        mayo2005,
-        junio2005,
-        junio2005 - mayo2005 as diferencia,
-        (junio2005-mayo2005)/mayo2005 as porcentaje
-    from datos_tienda_empleado
-    group by store, staff
-
-),
 
 datos_tienda_pelicula as (
     select 
@@ -75,12 +48,10 @@ datos_tienda_pelicula_analisis as (
 
 
 
--- analisis 1
+-- analisis 
 
+select * from datos_tienda_pelicula_analisis limit 10;
 
-
--- select * from datos_tienda_empleado_analisis;
-select * from datos_tienda_pelicula_analisis;
 
  
 
