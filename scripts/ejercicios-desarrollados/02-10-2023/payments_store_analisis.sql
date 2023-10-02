@@ -23,8 +23,10 @@ with payments_per_rental as (
 payments_store_data as (
     select 
         store_id,
+        CONCAT(address, ', ', city) AS Tienda,
         city,
         district,
+        address,
         YEAR(payment_date_avg) as anno,
         MONTH(payment_date_avg) as mes,
         sum(total_pagos_per_rental) as total_pagos,
@@ -43,6 +45,7 @@ payments_store_subset as (
         store_id,
         city,
         district,
+        address,
         sum(case when anno = 2005 and mes = 5 then total_pagos else 0 end) as in_mayo2005, -- suma de dinero recibido por los rentals de mayo
         count(case when anno = 2005 and mes = 5 then total_pagos else null end) as rentals_mayo2005, -- cantidad de rentals en mayo
         
@@ -61,6 +64,7 @@ payments_store_analisis_preoperations as (
         store_id,
         city,
         district,
+        address,
         in_mayo2005 / rentals_mayo2005 as avg_mayo2005,
         in_junio2005 / rentals_junio2005 as avg_junio2005,
         in_julio2005 / rentals_julio2005 as avg_julio2005
@@ -72,8 +76,9 @@ payments_store_analisis_preoperations as (
 payments_store_analisis as (
     select 
         store_id,
-        -- city,
-        -- district,
+        city,
+        district,
+        address,
         ROUND(avg_mayo2005, 2) as avg_mayo2005,
         ROUND(avg_junio2005, 2) as avg_junio2005,
         ROUND(avg_junio2005 - avg_mayo2005, 2) as diff_junio_mayo,
