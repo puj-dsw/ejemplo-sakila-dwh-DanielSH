@@ -29,8 +29,7 @@ payments_store_data as (
         address,
         YEAR(payment_date_avg) as anno,
         MONTH(payment_date_avg) as mes,
-        sum(total_pagos_per_rental) as total_pagos,
-        count(*) as qty_rentals
+        sum(total_pagos_per_rental)/count(*) as avg_mes
     from payments_per_rental
         join inventory using(inventory_id)
         join store using(store_id)
@@ -46,30 +45,13 @@ payments_store_subset as (
         city,
         district,
         address,
-        sum(case when anno = 2005 and mes = 5 then total_pagos else 0 end) as in_mayo2005, -- suma de dinero recibido por los rentals de mayo
-        count(case when anno = 2005 and mes = 5 then total_pagos else null end) as rentals_mayo2005, -- cantidad de rentals en mayo
-        
-        sum(case when anno = 2005 and mes = 6 then total_pagos else 0 end) as in_junio2005, -- suma de dinero recibido por los rentals de junio
-        count(case when anno = 2005 and mes = 6 then total_pagos else null end) as rentals_junio2005, -- cantidad de rentals en junio
-        
-        sum(case when anno = 2005 and mes = 7 then total_pagos else 0 end) as in_julio2005, -- suma de dinero recibido por los rentals de julio
-        count(case when anno = 2005 and mes = 7 then total_pagos else null end) as rentals_julio2005 -- cantidad de rentals en julio
-
+        sum(case when anno = 2005 and mes = 5 then avg_mes else 0 end) as avg_mayo2005, -- suma de dinero recibido por los rentals de mayo        
+        sum(case when anno = 2005 and mes = 6 then avg_mes else 0 end) as avg_junio2005, -- suma de dinero recibido por los rentals de junio
+        sum(case when anno = 2005 and mes = 7 then avg_mes else 0 end) as avg_julio2005 -- suma de dinero recibido por los rentals de julio
     from payments_store_data
     group by store_id
 ),
 
-payments_store_analisis_preoperations as (
-    select 
-        store_id,
-        city,
-        district,
-        address,
-        in_mayo2005 / rentals_mayo2005 as avg_mayo2005,
-        in_junio2005 / rentals_junio2005 as avg_junio2005,
-        in_julio2005 / rentals_julio2005 as avg_julio2005
-    from payments_store_subset
-),
 
 
 -- -- analiticas descriptivas
@@ -87,9 +69,9 @@ payments_store_analisis as (
         ROUND(avg_julio2005 - avg_junio2005, 2) as diff_julio_junio,
         CONCAT(ROUND(((avg_julio2005-avg_junio2005)/avg_junio2005)*100, 2), '%') as crecimiento_junio_julio
 
-    from payments_store_analisis_preoperations
+    from payments_store_subset
 )
 
 
 
-select * from payments_store_analisis limit 5;
+select * from payments_store_analisis limit 10;
